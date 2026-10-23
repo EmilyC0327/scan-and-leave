@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scan & Leave</title>
+<meta name="theme-color" content="#0e7490">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef6f8; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+  --brand:#0e7490; --brand-ink:#ffffff; --brand-soft:#cffafe;
+  --ok:#059669; --ok-soft:#d1fae5; --ok-tint:#f0fdf4;
+  --warn:#b45309; --warn-soft:#fef3c7;
+  --bad:#dc2626; --bad-soft:#fee2e2;
+  --info:#0369a1; --info-soft:#e0f2fe;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans TC",system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.45}
+button,input,textarea{font:inherit;color:inherit}
+.wrap{max-width:520px;margin:0 auto;padding:16px 16px 132px}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 16px}
+.brand h1{font-size:23px;margin:0;font-weight:700;letter-spacing:-.01em}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.lang{display:flex;flex:none;border:1px solid var(--line);border-radius:999px;background:var(--card);padding:3px}
+.lang button{border:0;background:none;padding:6px 12px;border-radius:999px;font-size:14px;color:var(--muted);cursor:pointer}
+.lang button.on{background:var(--brand);color:var(--brand-ink);font-weight:600}
+
+.demo{background:var(--warn-soft);color:var(--warn);font-size:13px;padding:8px 12px;border-radius:10px;margin-bottom:12px}
+
+.loc{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;margin-bottom:14px;font-size:15px;font-weight:500}
+.loc .dot{width:10px;height:10px;border-radius:50%;flex:none;background:currentColor}
+.loc .txt{flex:1}
+.loc.checking{background:var(--info-soft);color:var(--info)}
+.loc.checking .dot{animation:pulse 1s ease-in-out infinite}
+.loc.ok{background:var(--ok-soft);color:var(--ok)}
+.loc.warn{background:var(--warn-soft);color:var(--warn)}
+.loc.bad{background:var(--bad-soft);color:var(--bad)}
+.loc button{border:0;background:rgba(255,255,255,.7);color:inherit;padding:5px 11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+@keyframes pulse{50%{opacity:.25}}
+
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 1px 2px rgba(15,23,42,.05),0 4px 16px rgba(15,23,42,.04);margin-bottom:14px}
+.card h2{font-size:17px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.card h2 .n{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--brand-soft);color:var(--brand);font-size:13px;font-weight:700}
+.count{margin-left:auto;font-size:13px;font-weight:600;color:var(--muted);background:var(--bg);padding:3px 9px;border-radius:999px}
+.count.done{color:var(--ok);background:var(--ok-soft)}
+
+.item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 12px;border:1.5px solid var(--line);background:var(--card);border-radius:12px;margin-top:8px;cursor:pointer;user-select:none;transition:background .12s,border-color .12s}
+.item .box{width:24px;height:24px;border-radius:7px;border:2px solid #cbd5e1;flex:none;display:grid;place-items:center;transition:all .12s}
+.item .box svg{opacity:0;transform:scale(.6);transition:all .12s}
+.item.on{border-color:var(--ok);background:var(--ok-tint)}
+.item.on .box{background:var(--ok);border-color:var(--ok)}
+.item.on .box svg{opacity:1;transform:none}
+.item .lbl{font-weight:500}
+.item .where{display:block;margin-top:6px;font-size:13px;font-weight:400;color:var(--muted);line-height:1.55}
+.item .where span{display:block}
+.item .where b{font-weight:600;color:var(--ink)}
+
+.search{position:relative;margin-top:10px}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search input{width:100%;padding:13px 40px 13px 42px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);font-size:16px;outline:none}
+.search input:focus{border-color:var(--brand)}
+.search input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+.search .clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--muted);font-size:20px;line-height:1;padding:6px 10px;cursor:pointer}
+.list{margin-top:8px;max-height:300px;overflow-y:auto;border:1.5px solid var(--line);border-radius:12px;overscroll-behavior:contain}
+.person{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:var(--card);padding:11px 12px;cursor:pointer}
+.person:last-child{border-bottom:0}
+.person:active{background:var(--bg)}
+.av{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:14px}
+.person .nm{font-weight:500}
+.person mark{background:#fef08a;color:inherit;border-radius:3px;padding:0 1px}
+.person .tag{margin-left:auto;font-size:12px;color:var(--brand);font-weight:600}
+.empty{padding:16px;text-align:center;color:var(--muted);font-size:14px}
+
+.picked{display:flex;align-items:center;gap:12px;margin-top:10px;padding:12px;border:1.5px solid var(--ok);background:var(--ok-tint);border-radius:12px}
+.picked .nm{font-weight:600;flex:1}
+.picked button{border:0;background:var(--card);color:var(--brand);font-weight:600;font-size:14px;padding:7px 12px;border-radius:9px;cursor:pointer;box-shadow:0 0 0 1px var(--line)}
+
+details{margin-top:2px}
+summary{cursor:pointer;color:var(--muted);font-size:15px;font-weight:500;list-style:none;padding:4px 0}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+ ";font-weight:700}
+details[open] summary::before{content:"− "}
+textarea{width:100%;margin-top:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;resize:vertical;min-height:80px;outline:none;font-size:16px}
+textarea:focus{border-color:var(--brand)}
+
+.bar{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to top,var(--bg) 70%,rgba(238,246,248,0));padding:18px 16px calc(14px + env(safe-area-inset-bottom))}
+.bar .in{max-width:520px;margin:0 auto}
+.hint{text-align:center;font-size:13px;color:var(--muted);margin-bottom:8px;min-height:18px}
+.go{width:100%;border:0;border-radius:14px;padding:16px;font-size:17px;font-weight:700;background:var(--brand);color:var(--brand-ink);cursor:pointer;box-shadow:0 6px 18px rgba(14,116,144,.3);transition:opacity .15s}
+.go:disabled{background:#94a3b8;box-shadow:none;cursor:not-allowed}
+
+.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--bad);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 6px 20px rgba(0,0,0,.15);z-index:9}
+
+.success{position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+.success > *{position:relative}
+.success.night{background:linear-gradient(180deg,#0f2a3d 0%,#14394f 55%,#eef6f8 100%)}
+.success.night h2,.success.night .bye{color:#fff}
+.sky{position:absolute!important;inset:0;pointer-events:none}
+.star{position:absolute;color:#fde68a;font-size:12px;opacity:0;animation:twinkle 2.4s ease-in-out infinite}
+.success .big{width:92px;height:92px;border-radius:50%;background:var(--ok);display:grid;place-items:center;margin-bottom:16px;box-shadow:0 10px 30px rgba(5,150,105,.35);animation:pop .35s ease-out}
+.emo{font-size:40px;line-height:1;height:48px;opacity:0;animation:rise .6s .35s ease-out forwards}
+.success h2{font-size:22px;margin:10px 0 6px;max-width:340px;line-height:1.4;opacity:0;animation:rise .5s .55s ease-out forwards}
+.bye{font-size:17px;font-weight:600;margin:0 0 22px;opacity:0;animation:rise .5s .75s ease-out forwards}
+.receipt{background:var(--card);border-radius:16px;padding:14px 22px;box-shadow:0 6px 20px rgba(15,23,42,.08);opacity:0;animation:rise .5s .95s ease-out forwards}
+.rlabel{font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.success .who{font-size:17px;font-weight:600;margin:0}
+.success .when{font-size:14px;color:var(--muted);margin:2px 0 10px}
+.success .pill{display:inline-block;font-size:13px;font-weight:600;padding:5px 11px;border-radius:999px}
+.success .pill.ok{background:var(--ok-soft);color:var(--ok)}
+.success .pill.warn{background:var(--warn-soft);color:var(--warn)}
+.success .pill.bad{background:var(--bad-soft);color:var(--bad)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.6)}50%{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.4);opacity:0}80%{transform:scale(1.06)}100%{transform:none;opacity:1}}
+.steps{display:flex;gap:6px;margin:0 0 14px}
+.steps span{flex:1;height:5px;border-radius:999px;background:var(--line);overflow:hidden}
+.steps span i{display:block;height:100%;width:0;background:var(--brand);border-radius:999px;transition:width .25s ease}
+.back{display:inline-flex;align-items:center;gap:4px;border:0;background:none;color:var(--brand);font-weight:600;font-size:15px;padding:4px 0 12px;cursor:pointer}
+.recap{display:flex;align-items:center;gap:8px;background:var(--ok-soft);color:var(--ok);font-weight:600;font-size:14px;padding:10px 14px;border-radius:12px;margin-bottom:14px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="app" class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Scan &amp; Leave</h1>
+      <p data-t="subtitle"></p>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button data-lang="zh">繁</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </header>
+
+  <div class="demo" id="demo" data-t="demo" hidden></div>
+
+  <div class="loc checking" id="loc">
+    <span class="dot"></span><span class="txt" id="locTxt"></span>
+    <button id="locRetry" hidden data-t="retry"></button>
+  </div>
+
+  <div class="steps"><span><i id="s1"></i></span><span><i id="s2"></i></span></div>
+
+  <div id="page1">
+  <section class="card">
+    <h2><span class="n">1</span><span data-t="checksTitle"></span><span class="count" id="count"></span></h2>
+    <div id="checks"></div>
+  </section>
+  </div>
+
+  <div id="page2" hidden>
+  <button class="back" id="back" type="button">‹ <span data-t="back"></span></button>
+  <div class="recap">✓ <span id="recap"></span></div>
+  <section class="card">
+    <h2><span class="n">2</span><span data-t="nameTitle"></span></h2>
+    <div id="pickerArea">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <button class="clear" id="qClear" aria-label="Clear" hidden>×</button>
+      </div>
+      <div class="list" id="list"></div>
+    </div>
+    <div class="picked" id="picked" hidden>
+      <span class="av" id="pickedAv"></span>
+      <span class="nm" id="pickedNm"></span>
+      <button id="change" data-t="change"></button>
+    </div>
+  </section>
+
+  <section class="card">
+    <details id="noteBox">
+      <summary data-t="noteSum"></summary>
+      <textarea id="note" maxlength="500"></textarea>
+    </details>
+  </section>
+  </div>
+</div>
+
+<div class="bar" id="bar">
+  <div class="in">
+    <div class="hint" id="hint"></div>
+    <button class="go" id="go" disabled></button>
+  </div>
+</div>
+
+<div class="success" id="done" hidden>
+  <div class="sky" id="sky" aria-hidden="true"></div>
+  <div class="big"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+  <div class="emo" id="doneEmo"></div>
+  <h2 id="doneMsg"></h2>
+  <p class="bye" id="doneBye"></p>
+  <div class="receipt">
+    <div class="rlabel" data-t="receipt"></div>
+    <p class="who" id="doneWho"></p>
+    <p class="when" id="doneWhen"></p>
+    <span class="pill" id="doneLoc"></span>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ======================= SETTINGS — edit these ======================= */
+const CONFIG = {
+  // Your Supabase project (see README). Leave both empty = demo mode (nothing is saved).
+  SUPABASE_URL: "https://csreinoxerdervbpqfyn.supabase.co",
+  SUPABASE_KEY: "sb_publishable_TNo9yg55fTTFaIQiFd-BNw_aHz3YPYI"    // the "anon" / "publishable" key — safe to put here; it can only call the sign-off functions
+};
+// Sign-off is only accepted on the office Wi-Fi. The check is done by the database
+// (see supabase-setup.sql), so it can't be bypassed by editing this page.
+
+// [Full name, Nickname] — shown as "Full name, Nickname"
+const STAFF = [
+  ["Tang So Shan", "Suzan"],
+  ["Chan Chi Pan", "Andy"],
+  ["Leung Ho Yu", "Toby"],
+  ["Cheung Ting Chi", "Suki"],
+  ["Tse Ka Lok", "Karen"],
+  ["Kwok Chung Man", "Amanda"],
+  ["Hung Ching Lam", "Jessica"],
+  ["Choy Wai Shu", "Vivian"],
+  ["Ng Sui Mang", "Sophia"],
+  ["Chan Yuen Shan", "Olga"],
+  ["Lai Kong", "Murphy"],
+  ["Tang Yin Ching", "Carine"],
+  ["Wang Ping Chun", "Daisy"],
+  ["Cheng Sze Wai", "Cynthia"],
+  ["Chang Wan Yin", "Emily"],
+  ["Law Yuen Ching", "Estella"],
+  ["Or Pui Hung", "Paul"],
+  ["Choy Ming Sum", "Sam"],
+  ["Wan Siu Ling", "Ada"],
+  ["Tang", "Tiffanie"],
+  ["Cheung Wan Ying", "Dawn"],
+  ["Sim Swee Leng", "Jacki"],
+  ["Ma Lai Ying", "Yen"],
+  ["Yung Raziya", "Cynthia"]
+];
+
+const CHECKS = [
+  { id: "aircon", zh: "所有冷氣已關（共 12 部）", en: "All 12 air-conditioners off",
+    where: [ // shown under the item as a reminder of where to check — 4 + 3 + 3 + 2 = 12
+      { zh: "房間 (4)", en: "Rooms (4)", itemsZh: "羊房、Lion Room、猴子房、黃色小房", itemsEn: "Goat Room, Lion Room, Monkey Room, Yellow Room" },
+      { zh: "公共區域 (3)", en: "Public area (3)", itemsZh: "門口、茶水間、走廊", itemsEn: "Entrance, Pantry, Corridor" },
+      { zh: "小島 (3)", en: "Islands (3)", itemsZh: "HR & Marketing、Carine & Murphy、BAO & Onsite Admin", itemsEn: "HR & Marketing, Carine & Murphy, BAO & Onsite Admin" },
+      { zh: "Entertainment Room (2)", en: "Entertainment Room (2)", itemsZh: "Room 1、Room 2", itemsEn: "Room 1, Room 2" } ] },
+  { id: "lights", zh: "所有燈已關（包括會議室及茶水間）", en: "All lights off (incl. meeting rooms & pantry)" },
+  { id: "toilets", zh: "男女洗手間：已關燈、關抽氣扇、關窗", en: "Men's & women's toilets: lights off, exhaust fans off, windows closed" },
+  { id: "fans",   zh: "所有風扇已關",           en: "All fans off" },
+  { id: "tap",    zh: "茶水間水龍頭已關，沒有滴水", en: "Pantry tap closed — no dripping" },
+  { id: "door",   zh: "離開時關上大門，聽到「咔」聲後推一下，確認鎖好", en: "On leaving, close the main door, wait for the click, then push to check it's locked" }
+];
+/* ===================================================================== */
+
+const T = {
+  zh: {
+    subtitle: "最後離場紀錄",
+    demo: "示範模式：紀錄未會儲存（未連接資料庫）",
+    netChecking: "正在確認公司 Wi-Fi…",
+    netOk: "已連接公司 Wi-Fi",
+    netNo: "未連接公司 Wi-Fi，請連接後按重試",
+    netError: "未能確認網絡，請檢查連線後重試",
+    hintWifi: "請先連接公司 Wi-Fi 才可提交",
+    hintChecking: "正在確認 Wi-Fi…",
+    retry: "重試",
+    checksTitle: "離開前請確認",
+    nameTitle: "你的名字",
+    search: "搜尋名字，例如 Emily",
+    noMatch: "找不到這個名字",
+    lastTime: "上次",
+    change: "更改",
+    noteSum: "有問題需要報告？（選填）",
+    notePh: "例如：茶水間水龍頭漏水",
+    submit: "確認並離開",
+    next: "下一步",
+    back: "返回清單",
+    recap: "已完成 {n} 項檢查",
+    sending: "儲存中…",
+    hintChecks: "還有 {n} 項未確認",
+    hintName: "請選擇你的名字",
+    hintReady: "全部完成 👍",
+    msgEarly: "收工啦，好嘢！",
+    msgEvening: "辛苦晒～ Have a good night",
+    msgLate: "咁夜先走?! 快啲返屋企休息，have a goodnight~",
+    bye: "Bye bye，{nick}！👋",
+    byeWeekend: "Enjoy your weekend，{nick}！☀️",
+    receipt: "今日最後離場",
+    doneNet: "✓ 公司 Wi-Fi 已確認",
+    err: "未能儲存，請檢查網絡後再試。"
+  },
+  en: {
+    subtitle: "Last-out sign-off",
+    demo: "Demo mode — records are not saved (database not connected)",
+    netChecking: "Checking office Wi-Fi…",
+    netOk: "Connected to office Wi-Fi",
+    netNo: "Not on office Wi-Fi — connect, then tap Retry",
+    netError: "Couldn't check the network — check your connection and retry",
+    hintWifi: "Connect to the office Wi-Fi to sign off",
+    hintChecking: "Checking Wi-Fi…",
+    retry: "Retry",
+    checksTitle: "Before you leave",
+    nameTitle: "Your name",
+    search: "Search your name, e.g. Emily",
+    noMatch: "No matching name",
+    lastTime: "Last time",
+    change: "Change",
+    noteSum: "Anything to report? (optional)",
+    notePh: "e.g. The pantry tap is leaking",
+    submit: "Sign off & leave",
+    next: "Next",
+    back: "Back to checklist",
+    recap: "{n} checks done",
+    sending: "Saving…",
+    hintChecks: "{n} item(s) left to tick",
+    hintName: "Choose your name",
+    hintReady: "All set 👍",
+    msgEarly: "Clocking off on time — nice!",
+    msgEvening: "Thanks for your hard work~ Have a good night",
+    msgLate: "Leaving this late?! Hurry home and rest — have a goodnight~",
+    bye: "Bye bye, {nick}! 👋",
+    byeWeekend: "Enjoy your weekend, {nick}! ☀️",
+    receipt: "Today's last out",
+    doneNet: "✓ Verified on office Wi-Fi",
+    err: "Couldn't save. Check your connection and try again."
+  }
+};
+
+/* ---------- small helpers ---------- */
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+const esc = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const display = p => p[0] + ", " + p[1];
+const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+let lang = store.get("sl_lang") === "en" ? "en" : "zh";
+const t = (k, vars) => {
+  let s = T[lang][k] || k;
+  if (vars) for (const v in vars) s = s.replace("{" + v + "}", vars[v]);
+  return s;
+};
+
+const people = STAFF.slice().sort((a, b) => display(a).localeCompare(display(b)));
+const state = { checked: new Set(), person: null, sending: false, page: 1, net: { status: "checking" } };
+const lastName = store.get("sl_person");
+
+/* ---------- checklist ---------- */
+const tick = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function renderChecks(){
+  $("checks").innerHTML = CHECKS.map(c => {
+    const on = state.checked.has(c.id);
+    const where = c.where ? `<span class="where">${c.where.map(w =>
+      `<span><b>${esc(w[lang])}：</b>${esc(lang === "zh" ? w.itemsZh : w.itemsEn)}</span>`).join("")}</span>` : "";
+    return `<button type="button" class="item${on ? " on" : ""}" data-id="${c.id}" aria-pressed="${on}">
+       <span class="box">${tick}</span><span class="lbl">${esc(c[lang])}${where}</span></button>`;
+  }).join("");
+  const n = state.checked.size, total = CHECKS.length;
+  $("count").textContent = n + " / " + total;
+  $("count").classList.toggle("done", n === total);
+}
+$("checks").addEventListener("click", e => {
+  const b = e.target.closest("button.item"); if (!b) return;
+  const id = b.dataset.id;
+  state.checked.has(id) ? state.checked.delete(id) : state.checked.add(id);
+  if (navigator.vibrate) { try { navigator.vibrate(10); } catch(_){} }
+  renderChecks(); updateBar();
+});
+
+/* ---------- name picker (search + list in one) ---------- */
+function highlight(text, q){
+  if (!q) return esc(text);
+  const i = text.toLowerCase().indexOf(q.toLowerCase());
+  if (i < 0) return esc(text);
+  return esc(text.slice(0, i)) + "<mark>" + esc(text.slice(i, i + q.length)) + "</mark>" + esc(text.slice(i + q.length));
+}
+function renderList(){
+  const raw = $("q").value.trim();
+  const q = norm(raw);
+  $("qClear").hidden = !raw;
+  let list = people.filter(p => !q || norm(p[0] + p[1]).includes(q) || norm(p[1]).startsWith(q));
+  // put last-used name first when not searching
+  if (!q && lastName) {
+    const i = list.findIndex(p => display(p) === lastName);
+    if (i > 0) list.unshift(list.splice(i, 1)[0]);
+  }
+  $("list").innerHTML = list.length ? list.map(p => {
+    const name = display(p);
+    return `<button type="button" class="person" data-name="${esc(name)}">
+      <span class="av">${esc(p[1].charAt(0).toUpperCase())}</span>
+      <span class="nm">${highlight(name, raw)}</span>
+      ${!q && name === lastName ? `<span class="tag">${t("lastTime")}</span>` : ""}
+    </button>`;
+  }).join("") : `<div class="empty">${t("noMatch")}</div>`;
+}
+function pick(name){
+  const p = people.find(x => display(x) === name);
+  if (!p) return;
+  state.person = p;
+  $("pickedAv").textContent = p[1].charAt(0).toUpperCase();
+  $("pickedNm").textContent = name;
+  $("pickerArea").hidden = true;
+  $("picked").hidden = false;
+  $("q").blur();
+  updateBar();
+}
+$("list").addEventListener("click", e => {
+  const b = e.target.closest(".person"); if (b) pick(b.dataset.name);
+});
+$("q").addEventListener("input", renderList);
+$("q").addEventListener("keydown", e => {
+  if (e.key === "Enter") { const first = $("list").querySelector(".person"); if (first) pick(first.dataset.name); }
+});
+$("qClear").addEventListener("click", () => { $("q").value = ""; renderList(); $("q").focus(); });
+$("change").addEventListener("click", () => {
+  state.person = null;
+  $("picked").hidden = true; $("pickerArea").hidden = false;
+  $("q").value = ""; renderList(); updateBar();
+});
+
+/* ---------- Office Wi-Fi check (decided by the database) ---------- */
+const DEBUG = /[?&]debug=1/.test(location.search);   // add ?debug=1 to the link to see this phone's internet address (IP)
+const LIVE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_KEY);
+async function rpc(fn, body){
+  const headers = { "Content-Type": "application/json", apikey: CONFIG.SUPABASE_KEY };
+  if (CONFIG.SUPABASE_KEY.startsWith("eyJ")) headers.Authorization = "Bearer " + CONFIG.SUPABASE_KEY; // older "anon" keys
+  const ctrl = new AbortController(), tm = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch(CONFIG.SUPABASE_URL.replace(/\/+$/, "") + "/rest/v1/rpc/" + fn,
+      { method: "POST", headers, body: JSON.stringify(body || {}), signal: ctrl.signal, cache: "no-store" });
+    const j = await res.json().catch(() => null);
+    if (!res.ok) { const err = new Error((j && j.message) || ("HTTP " + res.status)); err.code = j && j.message; throw err; }
+    return j;
+  } finally { clearTimeout(tm); }
+}
+let netPromise;
+function checkNetwork(){
+  state.net = { status: "checking" }; renderLoc();
+  netPromise = (async () => {
+    try {
+      if (!LIVE) {               // demo: add ?wifi=no or ?wifi=error to the link to preview those states
+        await new Promise(r => setTimeout(r, 400));
+        const sim = (location.search.match(/[?&]wifi=(\w+)/) || [])[1];
+        state.net = sim === "no" ? { status: "no", ip: "198.51.100.7" } : sim === "error" ? { status: "error" } : { status: "ok", ip: "203.0.113.5" };
+      } else {
+        const j = await rpc("check_wifi");
+        state.net = { status: j && j.ok ? "ok" : "no", ip: j && j.ip };
+      }
+    } catch (e) { state.net = { status: "error" }; }
+    renderLoc();
+  })();
+  return netPromise;
+}
+function renderLoc(){
+  const n = state.net, el = $("loc");
+  const map = { checking: ["checking", t("netChecking")], ok: ["ok", t("netOk")], no: ["bad", t("netNo")], error: ["bad", t("netError")] };
+  const [cls, txt] = map[n.status];
+  el.className = "loc " + cls;
+  $("locTxt").textContent = txt + (DEBUG && n.ip ? `（IP：${n.ip}）` : "");
+  $("locRetry").hidden = !(n.status === "no" || n.status === "error");
+  if (typeof updateBar === "function" && $("go").textContent) updateBar();
+}
+$("locRetry").addEventListener("click", checkNetwork);
+// check again when the phone comes back online or the page is reopened (e.g. after switching to the office Wi-Fi)
+window.addEventListener("online", checkNetwork);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && $("done").hidden && !state.sending && state.net.status !== "checking") checkNetwork();
+});
+
+/* ---------- submit ---------- */
+function updateBar(){
+  const left = CHECKS.length - state.checked.size;
+  // progress: first half fills as checks are ticked, second half when a name is picked on page 2
+  $("s1").style.width = (state.checked.size / CHECKS.length * 100) + "%";
+  $("s2").style.width = (state.page === 2 && state.person ? 100 : 0) + "%";
+  if (state.page === 1) {
+    $("go").disabled = left > 0;
+    $("go").textContent = t("next") + " →";
+    $("hint").textContent = left > 0 ? t("hintChecks", { n: left }) : t("hintReady");
+  } else {
+    const net = state.net.status, blocked = net === "no" || net === "error";
+    $("go").disabled = !state.person || state.sending || net !== "ok";
+    $("go").textContent = state.sending ? t("sending") : t("submit");
+    $("hint").textContent = blocked ? t("hintWifi") : net === "checking" ? t("hintChecking") : !state.person ? t("hintName") : t("hintReady");
+  }
+}
+function goPage(n){
+  state.page = n;
+  $("page1").hidden = n !== 1; $("page2").hidden = n !== 2;
+  window.scrollTo(0, 0); updateBar();
+}
+$("back").addEventListener("click", () => goPage(1));
+function showToast(msg){
+  const el = $("toast"); el.textContent = msg; el.hidden = false;
+  clearTimeout(showToast.tm); showToast.tm = setTimeout(() => el.hidden = true, 4000);
+}
+const hkTime = d => new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Hong_Kong", hour: "2-digit", minute: "2-digit" }).format(d);
+const hkDate = d => new Intl.DateTimeFormat(lang === "zh" ? "zh-HK" : "en-GB", { timeZone: "Asia/Hong_Kong", weekday: "short", day: "numeric", month: "short", year: "numeric" }).format(d);
+
+$("go").addEventListener("click", async () => {
+  if ($("go").disabled) return;
+  if (state.page === 1) { goPage(2); return; }
+  state.sending = true; updateBar();
+  if (state.net.status === "checking") await netPromise;
+  if (state.net.status !== "ok") { state.sending = false; updateBar(); showToast(t("hintWifi")); return; }
+  try {
+    let time = hkTime(new Date());
+    if (LIVE) {
+      const j = await rpc("sign_off", {
+        p_full_name: state.person[0], p_nickname: state.person[1],
+        p_checklist: CHECKS.map(c => c.en), p_note: $("note").value.trim() || null,
+        p_lang: lang, p_device: navigator.userAgent.slice(0, 200)
+      });
+      if (j && j.time) time = j.time;
+    }
+    store.set("sl_person", display(state.person));
+    const hr = +new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Hong_Kong", hour: "2-digit", hourCycle: "h23" }).format(new Date());
+    const slot = hr >= 20 || hr < 5 ? "Late" : hr >= 19 ? "Evening" : "Early";   // before 7pm / 7–8pm / 8pm or later
+    $("doneEmo").textContent = slot === "Early" ? "🎉" : "🌙";
+    $("doneMsg").textContent = t("msg" + slot);
+    const wd = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Hong_Kong", weekday: "short" }).format(new Date());
+    const weekend = wd === "Fri" || wd === "Sat";
+    $("doneBye").textContent = t(weekend ? "byeWeekend" : "bye", { nick: state.person[1] });
+    $("done").classList.toggle("night", slot !== "Early");
+    $("sky").innerHTML = slot === "Early" ? "" : Array.from({ length: 18 }, () =>
+      `<span class="star" style="left:${Math.random()*100}%;top:${Math.random()*45}%;animation-delay:${(Math.random()*2.4).toFixed(2)}s;font-size:${8 + Math.random()*10}px">✦</span>`).join("");
+    if (navigator.vibrate) { try { navigator.vibrate([30, 60, 30]); } catch(_){} }
+    $("doneWho").textContent = display(state.person);
+    $("doneWhen").textContent = hkDate(new Date()) + " · " + time;
+    $("doneLoc").className = "pill ok";
+    $("doneLoc").textContent = t("doneNet");
+    $("app").hidden = true; $("bar").hidden = true; $("done").hidden = false;
+    window.scrollTo(0, 0);
+  } catch (e) {
+    state.sending = false;
+    if (e.code === "NOT_OFFICE_WIFI") { state.net = { status: "no" }; renderLoc(); showToast(t("hintWifi")); }
+    else showToast(t("err"));
+    updateBar();
+  }
+});
+
+/* ---------- language ---------- */
+function applyLang(){
+  document.documentElement.lang = lang === "zh" ? "zh-HK" : "en";
+  document.querySelectorAll("[data-t]").forEach(el => el.textContent = t(el.dataset.t));
+  document.querySelectorAll("[data-lang]").forEach(b => b.classList.toggle("on", b.dataset.lang === lang));
+  $("q").placeholder = t("search");
+  $("note").placeholder = t("notePh");
+  renderChecks(); renderList(); renderLoc(); updateBar();
+  $("recap").textContent = t("recap", { n: CHECKS.length });
+}
+document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => {
+  lang = b.dataset.lang; store.set("sl_lang", lang); applyLang();
+}));
+
+/* ---------- start ---------- */
+$("demo").hidden = LIVE;
+checkNetwork();
+applyLang();
+if (lastName && people.some(p => display(p) === lastName)) pick(lastName);
+</script>
+</body>
+</html>
