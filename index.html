@@ -21,7 +21,7 @@
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans TC",system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.45}
 button,input,textarea{font:inherit;color:inherit}
-.wrap{max-width:520px;margin:0 auto;padding:16px 16px 132px}
+.wrap{max-width:520px;margin:0 auto;padding:16px 16px 40px}
 
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 16px}
 .brand h1{font-size:23px;margin:0;font-weight:700;letter-spacing:-.01em}
@@ -49,8 +49,13 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .count{margin-left:auto;font-size:13px;font-weight:600;color:var(--muted);background:var(--bg);padding:3px 9px;border-radius:999px}
 .count.done{color:var(--ok);background:var(--ok-soft)}
 
-.item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 12px;border:1.5px solid var(--line);background:var(--card);border-radius:12px;margin-top:8px;cursor:pointer;user-select:none;transition:background .12s,border-color .12s}
-.item .box{width:24px;height:24px;border-radius:7px;border:2px solid #cbd5e1;flex:none;display:grid;place-items:center;transition:all .12s}
+.item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 12px;border:1.5px solid var(--line);background:var(--card);border-radius:12px;margin-top:8px;transition:background .35s,border-color .35s}
+.item .num{position:absolute;font-size:12px;font-weight:700;color:#94a3b8;transition:opacity .2s}
+.item.on .num{opacity:0}
+.item .box{position:relative}
+.endnote{text-align:center;color:var(--muted);font-size:13px;margin:14px 0 2px}
+.endnote.on{color:var(--ok);font-weight:600}
+.item .box{width:24px;height:24px;border-radius:50%;border:2px solid #cbd5e1;flex:none;display:grid;place-items:center;transition:all .12s}
 .item .box svg{opacity:0;transform:scale(.6);transition:all .12s}
 .item.on{border-color:var(--ok);background:var(--ok-tint)}
 .item.on .box{background:var(--ok);border-color:var(--ok)}
@@ -88,7 +93,7 @@ details[open] summary::before{content:"− "}
 textarea{width:100%;margin-top:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;resize:vertical;min-height:80px;outline:none;font-size:16px}
 textarea:focus{border-color:var(--brand)}
 
-.bar{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to top,var(--bg) 70%,rgba(238,246,248,0));padding:18px 16px calc(14px + env(safe-area-inset-bottom))}
+.bar{padding:4px 0 8px}
 .bar .in{max-width:520px;margin:0 auto}
 .hint{text-align:center;font-size:13px;color:var(--muted);margin-bottom:8px;min-height:18px}
 .go{width:100%;border:0;border-radius:14px;padding:16px;font-size:17px;font-weight:700;background:var(--brand);color:var(--brand-ink);cursor:pointer;box-shadow:0 6px 18px rgba(14,116,144,.3);transition:opacity .15s}
@@ -122,6 +127,35 @@ textarea:focus{border-color:var(--brand)}
 .steps span i{display:block;height:100%;width:0;background:var(--brand);border-radius:999px;transition:width .25s ease}
 .back{display:inline-flex;align-items:center;gap:4px;border:0;background:none;color:var(--brand);font-weight:600;font-size:15px;padding:4px 0 12px;cursor:pointer}
 .recap{display:flex;align-items:center;gap:8px;background:var(--ok-soft);color:var(--ok);font-weight:600;font-size:14px;padding:10px 14px;border-radius:12px;margin-bottom:14px}
+/* v2: identity + one-page */
+.hello{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;padding:12px 14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+.hello .av{width:40px;height:40px;font-size:16px}
+.hello b{display:block;font-size:17px}
+.hello small{display:block;color:var(--muted);font-size:13px}
+.hello.new small{color:var(--ok);font-weight:600}
+.loc .ipsmall{display:block;font-size:11.5px;font-weight:400;opacity:.8;margin-top:2px}
+.allbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;padding:14px;border-radius:12px;border:2px dashed var(--brand);background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:16px;cursor:pointer;transition:all .15s}
+.allbtn.on{border-style:solid;border-color:var(--ok);background:var(--ok);color:#fff}
+.setup{text-align:center;padding:26px 18px}
+.setup .ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px;background:var(--brand-soft);font-size:30px}
+.setup h2{justify-content:center;font-size:19px;margin-bottom:8px}
+.setup p{color:var(--muted);margin:0 auto;max-width:330px;font-size:15px}
+.setup button{margin-top:16px;border:0;background:var(--brand);color:#fff;font-weight:700;border-radius:10px;padding:10px 18px;font-size:15px;cursor:pointer}
+.steps,#count{display:none!important}
+ol.plain{margin:6px 0 0;padding-left:22px}
+ol.plain li{padding:10px 2px;border-bottom:1px solid var(--line);font-weight:500;line-height:1.45}
+ol.plain li:last-child{border-bottom:0}
+ol.plain li::marker{color:var(--muted);font-weight:700}
+ol.plain .where{display:block;font-weight:400;margin-top:4px}
+ol.plain .where>span{display:block;font-size:14px;color:var(--muted)}
+ol.plain .where b{color:var(--text,#0f172a)}
+.endnote{color:var(--muted)!important;font-weight:400!important}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+.modal .sheet{background:var(--card);border-radius:18px;padding:22px 18px 14px;width:100%;max-width:400px;max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.modal h3{margin:0 0 6px;font-size:19px;text-align:center}
+.modal p{margin:0 0 18px;color:var(--muted);text-align:center;font-size:15px}
+.modal ul{margin:0 0 16px;padding-left:20px;font-size:15px;line-height:1.6}
+.modal .cfno{width:100%;margin-top:8px;border:0;background:none;color:var(--muted);font-size:16px;font-weight:600;padding:12px;cursor:pointer}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -146,50 +180,41 @@ textarea:focus{border-color:var(--brand)}
     <button id="locRetry" hidden data-t="retry"></button>
   </div>
 
-  <div class="steps"><span><i id="s1"></i></span><span><i id="s2"></i></span></div>
-
-  <div id="page1">
-  <section class="card">
-    <h2><span class="n">1</span><span data-t="checksTitle"></span><span class="count" id="count"></span></h2>
-    <div id="checks"></div>
-  </section>
+  <div class="hello" id="hello" hidden>
+    <span class="av" id="helloAv"></span>
+    <div><b id="helloName"></b><small id="helloSub"></small></div>
   </div>
 
-  <div id="page2" hidden>
-  <button class="back" id="back" type="button">‹ <span data-t="back"></span></button>
-  <div class="recap">✓ <span id="recap"></span></div>
-  <section class="card">
-    <h2><span class="n">2</span><span data-t="nameTitle"></span></h2>
-    <div id="pickerArea">
-      <div class="search">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="q" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-        <button class="clear" id="qClear" aria-label="Clear" hidden>×</button>
+  <div class="steps"><span><i id="s1"></i></span></div>
+
+  <div id="main" hidden>
+    <section class="card">
+      <h2><span data-t="checksTitle"></span><span class="count" id="count"></span></h2>
+      <div id="checks"></div>
+      <p class="endnote" id="endNote"></p>
+    </section>
+    <section class="card">
+      <details id="noteBox">
+        <summary data-t="noteSum"></summary>
+        <textarea id="note" maxlength="500"></textarea>
+      </details>
+    </section>
+    <div class="bar" id="bar">
+      <div class="in">
+        <div class="hint" id="hint"></div>
+        <button class="go" id="go" disabled></button>
       </div>
-      <div class="list" id="list"></div>
     </div>
-    <div class="picked" id="picked" hidden>
-      <span class="av" id="pickedAv"></span>
-      <span class="nm" id="pickedNm"></span>
-      <button id="change" data-t="change"></button>
-    </div>
-  </section>
-
-  <section class="card">
-    <details id="noteBox">
-      <summary data-t="noteSum"></summary>
-      <textarea id="note" maxlength="500"></textarea>
-    </details>
-  </section>
   </div>
+
+  <section class="card setup" id="setup" hidden>
+    <div class="ic" id="setupIc">📱</div>
+    <h2 id="setupTitle"></h2>
+    <p id="setupBody"></p>
+    <button id="setupRetry" type="button" hidden></button>
+  </section>
 </div>
 
-<div class="bar" id="bar">
-  <div class="in">
-    <div class="hint" id="hint"></div>
-    <button class="go" id="go" disabled></button>
-  </div>
-</div>
 
 <div class="success" id="done" hidden>
   <div class="sky" id="sky" aria-hidden="true"></div>
@@ -207,6 +232,15 @@ textarea:focus{border-color:var(--brand)}
 
 <div class="toast" id="toast" hidden></div>
 
+<div class="modal" id="confirm" hidden role="dialog" aria-modal="true" aria-labelledby="cfTitle">
+  <div class="sheet">
+    <h3 id="cfTitle"></h3>
+    <p id="cfBody"></p>
+    <button class="go" id="cfYes" type="button"></button>
+    <button class="cfno" id="cfNo" type="button"></button>
+  </div>
+</div>
+
 <script>
 /* ======================= SETTINGS — edit these ======================= */
 const CONFIG = {
@@ -217,33 +251,8 @@ const CONFIG = {
 // Sign-off is only accepted on the office Wi-Fi. The check is done by the database
 // (see supabase-setup.sql), so it can't be bypassed by editing this page.
 
-// [Full name, Nickname] — shown as "Full name, Nickname"
-const STAFF = [
-  ["Tang So Shan", "Suzan"],
-  ["Chan Chi Pan", "Andy"],
-  ["Leung Ho Yu", "Toby"],
-  ["Cheung Ting Chi", "Suki"],
-  ["Tse Ka Lok", "Karen"],
-  ["Kwok Chung Man", "Amanda"],
-  ["Hung Ching Lam", "Jessica"],
-  ["Choy Wai Shu", "Vivian"],
-  ["Ng Sui Mang", "Sophia"],
-  ["Chan Yuen Shan", "Olga"],
-  ["Lai Kong", "Murphy"],
-  ["Tang Yin Ching", "Carine"],
-  ["Wang Ping Chun", "Daisy"],
-  ["Cheng Sze Wai", "Cynthia"],
-  ["Chang Wan Yin", "Emily"],
-  ["Law Yuen Ching", "Estella"],
-  ["Or Pui Hung", "Paul"],
-  ["Choy Ming Sum", "Sam"],
-  ["Wan Siu Ling", "Ada"],
-  ["Tang", "Tiffanie"],
-  ["Cheung Wan Ying", "Dawn"],
-  ["Sim Swee Leng", "Jacki"],
-  ["Ma Lai Ying", "Yen"],
-  ["Yung Raziya", "Cynthia"]
-];
+// Staff names now live in the database (table "staff"), not in this public page.
+// Each phone is linked to one person with their personal setup link (…/?join=CODE).
 
 const CHECKS = [
   { id: "aircon", zh: "所有冷氣已關（共 12 部）", en: "All 12 air-conditioners off",
@@ -253,10 +262,10 @@ const CHECKS = [
       { zh: "小島 (3)", en: "Islands (3)", itemsZh: "HR & Marketing、Carine & Murphy、BAO & Onsite Admin", itemsEn: "HR & Marketing, Carine & Murphy, BAO & Onsite Admin" },
       { zh: "Entertainment Room (2)", en: "Entertainment Room (2)", itemsZh: "Room 1、Room 2", itemsEn: "Room 1, Room 2" } ] },
   { id: "lights", zh: "所有燈已關（包括會議室及茶水間）", en: "All lights off (incl. meeting rooms & pantry)" },
-  { id: "toilets", zh: "男女洗手間：已關燈、關抽氣扇、關窗", en: "Men's & women's toilets: lights off, exhaust fans off, windows closed" },
+  { id: "toilets", zh: "男女洗手間：已關燈、關抽氣扇、關窗", en: "Men's & women's toilets: lights off, exhaust fans off, windows closed", zhShort: "洗手間：燈、抽氣扇、窗已關", enShort: "Toilets: lights, exhaust fans, windows off/closed" },
   { id: "fans",   zh: "所有風扇已關",           en: "All fans off" },
   { id: "tap",    zh: "茶水間水龍頭已關，沒有滴水", en: "Pantry tap closed — no dripping" },
-  { id: "door",   zh: "離開時關上大門，聽到「咔」聲後推一下，確認鎖好", en: "On leaving, close the main door, wait for the click, then push to check it's locked" }
+  { id: "door",   zh: "離開時關上大門，聽到「咔」聲後推一下，確認鎖好", en: "On leaving, close the main door, wait for the click, then push to check it's locked", zhShort: "離開時關好大門並確認鎖好", enShort: "Main door closed and checked locked on leaving" }
 ];
 /* ===================================================================== */
 
@@ -272,6 +281,26 @@ const T = {
     hintChecking: "正在確認 Wi-Fi…",
     retry: "重試",
     checksTitle: "離開前請確認",
+    hello: "Hi {nick} 👋",
+    linkedNow: "已連結你的手機 ✓ 以後掃門口 QR 就可以",
+    readCount: "已閱 {n}/{total}",
+    endMore: "↓ 請向下捲動，閱讀每一項",
+    endAll: "— 以上共 6 項 —",
+    hintScroll: "請先向下閱讀全部項目",
+    submitReady: "我已檢查全部 6 項",
+    cfTitle: "你真的確認全部都檢查好了嗎？",
+    cfBody: "按「確認」即代表你已親自檢查以上 6 項，並會以你的名字記錄。",
+    cfYes: "確認，簽退離開",
+    cfNo: "未有，返回再檢查",
+    network: "網絡",
+    setupTitle: "這部手機未設定",
+    setupBody: "請打開管理員用 WhatsApp 傳給你的「個人設定連結」一次。之後掃門口 QR，系統就會自動認得你。",
+    badTitle: "此設定連結無效",
+    badBody: "連結可能已更新。請向管理員索取新的個人連結。",
+    replacedTitle: "你的連結已在另一部手機使用",
+    replacedBody: "如果是你換了手機，請在新手機打開個人連結。如果不是你，請立即通知管理員。",
+    idErrTitle: "未能確認這部手機",
+    idErrBody: "請檢查網絡後按重試。",
     nameTitle: "你的名字",
     search: "搜尋名字，例如 Emily",
     noMatch: "找不到這個名字",
@@ -284,9 +313,9 @@ const T = {
     back: "返回清單",
     recap: "已完成 {n} 項檢查",
     sending: "儲存中…",
-    hintChecks: "還有 {n} 項未確認",
+    hintChecks: "請向下捲動，閱讀全部項目（尚餘 {n} 項）",
     hintName: "請選擇你的名字",
-    hintReady: "全部完成 👍",
+    hintReady: "下一步會再確認一次",
     msgEarly: "收工啦，好嘢！",
     msgEvening: "辛苦晒～ Have a good night",
     msgLate: "咁夜先走?! 快啲返屋企休息，have a goodnight~",
@@ -307,6 +336,26 @@ const T = {
     hintChecking: "Checking Wi-Fi…",
     retry: "Retry",
     checksTitle: "Before you leave",
+    hello: "Hi {nick} 👋",
+    linkedNow: "Your phone is linked ✓ Next time just scan the door QR",
+    readCount: "Read {n}/{total}",
+    endMore: "↓ Scroll down to read every item",
+    endAll: "— End of list (6 items) —",
+    hintScroll: "Please read the whole list first",
+    submitReady: "I've checked all 6 items",
+    cfTitle: "Are you really confirming everything?",
+    cfBody: "By tapping Yes, you confirm you personally checked all 6 items. This is recorded under your name.",
+    cfYes: "Yes, sign off & leave",
+    cfNo: "Not yet, go back",
+    network: "Network",
+    setupTitle: "This phone isn't set up yet",
+    setupBody: "Open the personal setup link the admin sent you on WhatsApp, once. After that, scanning the QR at the door will recognise you automatically.",
+    badTitle: "This setup link doesn't work",
+    badBody: "It may have been replaced. Ask the admin for a new personal link.",
+    replacedTitle: "Your link was used on another phone",
+    replacedBody: "If you changed phones, open your personal link on the new one. If it wasn't you, tell the admin straight away.",
+    idErrTitle: "Couldn't check this phone",
+    idErrBody: "Check your connection, then tap Retry.",
     nameTitle: "Your name",
     search: "Search your name, e.g. Emily",
     noMatch: "No matching name",
@@ -319,9 +368,9 @@ const T = {
     back: "Back to checklist",
     recap: "{n} checks done",
     sending: "Saving…",
-    hintChecks: "{n} item(s) left to tick",
+    hintChecks: "Scroll down to read every item ({n} left)",
     hintName: "Choose your name",
-    hintReady: "All set 👍",
+    hintReady: "You'll be asked to double-check next",
     msgEarly: "Clocking off on time — nice!",
     msgEvening: "Thanks for your hard work~ Have a good night",
     msgLate: "Leaving this late?! Hurry home and rest — have a goodnight~",
@@ -337,11 +386,10 @@ const T = {
 const $ = id => document.getElementById(id);
 const store = {
   get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
-  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
 };
-const esc = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const display = p => p[0] + ", " + p[1];
-const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 let lang = store.get("sl_lang") === "en" ? "en" : "zh";
 const t = (k, vars) => {
@@ -350,86 +398,11 @@ const t = (k, vars) => {
   return s;
 };
 
-const people = STAFF.slice().sort((a, b) => display(a).localeCompare(display(b)));
-const state = { checked: new Set(), person: null, sending: false, page: 1, net: { status: "checking" } };
-const lastName = store.get("sl_person");
-
-/* ---------- checklist ---------- */
-const tick = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-function renderChecks(){
-  $("checks").innerHTML = CHECKS.map(c => {
-    const on = state.checked.has(c.id);
-    const where = c.where ? `<span class="where">${c.where.map(w =>
-      `<span><b>${esc(w[lang])}：</b>${esc(lang === "zh" ? w.itemsZh : w.itemsEn)}</span>`).join("")}</span>` : "";
-    return `<button type="button" class="item${on ? " on" : ""}" data-id="${c.id}" aria-pressed="${on}">
-       <span class="box">${tick}</span><span class="lbl">${esc(c[lang])}${where}</span></button>`;
-  }).join("");
-  const n = state.checked.size, total = CHECKS.length;
-  $("count").textContent = n + " / " + total;
-  $("count").classList.toggle("done", n === total);
-}
-$("checks").addEventListener("click", e => {
-  const b = e.target.closest("button.item"); if (!b) return;
-  const id = b.dataset.id;
-  state.checked.has(id) ? state.checked.delete(id) : state.checked.add(id);
-  if (navigator.vibrate) { try { navigator.vibrate(10); } catch(_){} }
-  renderChecks(); updateBar();
-});
-
-/* ---------- name picker (search + list in one) ---------- */
-function highlight(text, q){
-  if (!q) return esc(text);
-  const i = text.toLowerCase().indexOf(q.toLowerCase());
-  if (i < 0) return esc(text);
-  return esc(text.slice(0, i)) + "<mark>" + esc(text.slice(i, i + q.length)) + "</mark>" + esc(text.slice(i + q.length));
-}
-function renderList(){
-  const raw = $("q").value.trim();
-  const q = norm(raw);
-  $("qClear").hidden = !raw;
-  let list = people.filter(p => !q || norm(p[0] + p[1]).includes(q) || norm(p[1]).startsWith(q));
-  // put last-used name first when not searching
-  if (!q && lastName) {
-    const i = list.findIndex(p => display(p) === lastName);
-    if (i > 0) list.unshift(list.splice(i, 1)[0]);
-  }
-  $("list").innerHTML = list.length ? list.map(p => {
-    const name = display(p);
-    return `<button type="button" class="person" data-name="${esc(name)}">
-      <span class="av">${esc(p[1].charAt(0).toUpperCase())}</span>
-      <span class="nm">${highlight(name, raw)}</span>
-      ${!q && name === lastName ? `<span class="tag">${t("lastTime")}</span>` : ""}
-    </button>`;
-  }).join("") : `<div class="empty">${t("noMatch")}</div>`;
-}
-function pick(name){
-  const p = people.find(x => display(x) === name);
-  if (!p) return;
-  state.person = p;
-  $("pickedAv").textContent = p[1].charAt(0).toUpperCase();
-  $("pickedNm").textContent = name;
-  $("pickerArea").hidden = true;
-  $("picked").hidden = false;
-  $("q").blur();
-  updateBar();
-}
-$("list").addEventListener("click", e => {
-  const b = e.target.closest(".person"); if (b) pick(b.dataset.name);
-});
-$("q").addEventListener("input", renderList);
-$("q").addEventListener("keydown", e => {
-  if (e.key === "Enter") { const first = $("list").querySelector(".person"); if (first) pick(first.dataset.name); }
-});
-$("qClear").addEventListener("click", () => { $("q").value = ""; renderList(); $("q").focus(); });
-$("change").addEventListener("click", () => {
-  state.person = null;
-  $("picked").hidden = true; $("pickerArea").hidden = false;
-  $("q").value = ""; renderList(); updateBar();
-});
-
-/* ---------- Office Wi-Fi check (decided by the database) ---------- */
-const DEBUG = /[?&]debug=1/.test(location.search);   // add ?debug=1 to the link to see this phone's internet address (IP)
+const state = { checked: new Set(), sending: false, net: { status: "checking" }, me: null, id: "checking", justLinked: false };
+const DEBUG = /[?&]debug=1/.test(location.search);
 const LIVE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_KEY);
+const UA = navigator.userAgent.slice(0, 200);
+
 async function rpc(fn, body){
   const headers = { "Content-Type": "application/json", apikey: CONFIG.SUPABASE_KEY };
   if (CONFIG.SUPABASE_KEY.startsWith("eyJ")) headers.Authorization = "Bearer " + CONFIG.SUPABASE_KEY; // older "anon" keys
@@ -442,6 +415,89 @@ async function rpc(fn, body){
     return j;
   } finally { clearTimeout(tm); }
 }
+
+/* ---------- who is this phone? (linked once with the personal setup link) ---------- */
+// demo mode: works as "Emily"; add ?demo=unlinked, ?demo=badlink or ?demo=replaced to preview those screens
+const DEMO_ME = { full_name: "Chang Wan Yin", nickname: "Emily" };
+async function identify(){
+  state.id = "checking"; renderId();
+  const join = (location.search.match(/[?&]join=([0-9a-f]+)/i) || [])[1];
+  const demo = (location.search.match(/[?&]demo=(\w+)/) || [])[1];
+  if (join) {
+    try {
+      const j = LIVE ? await rpc("link_device", { p_code: join, p_device: UA }) : { ok: true, token: "demo", ...DEMO_ME };
+      store.set("sl_token", j.token); state.me = j; state.justLinked = true;
+    } catch (e) { state.id = e.code === "BAD_LINK" ? "badlink" : "error"; }
+    try { history.replaceState(null, "", location.pathname); } catch (_) {}   // hide the code from the address bar
+    if (!state.me) { renderId(); return; }
+  }
+  if (!state.me) {
+    const tok = store.get("sl_token");
+    try {
+      if (!LIVE) {
+        if (demo === "unlinked") state.id = "none";
+        else if (demo === "badlink") state.id = "badlink";
+        else if (demo === "replaced") state.id = "replaced";
+        else state.me = DEMO_ME;
+      } else if (!tok) state.id = "none";
+      else {
+        const j = await rpc("whoami", { p_token: tok });
+        if (j && j.ok) state.me = j;
+        else { store.del("sl_token"); state.id = j && j.reason === "replaced" ? "replaced" : "none"; }
+      }
+    } catch (e) { state.id = "error"; }
+  }
+  if (state.me) state.id = "ok";
+  renderId();
+}
+function renderId(){
+  const ok = state.id === "ok";
+  $("hello").hidden = !ok; $("main").hidden = !ok; $("bar").hidden = !ok;
+  if (ok && !listShownAt) { listShownAt = Date.now(); unlockIfRead(); }
+  $("setup").hidden = ok || state.id === "checking";
+  if (ok) {
+    $("helloAv").textContent = (state.me.nickname || "?").charAt(0).toUpperCase();
+    $("helloName").textContent = t("hello", { nick: state.me.nickname });
+    $("hello").classList.toggle("new", state.justLinked);
+    $("helloSub").textContent = state.justLinked ? t("linkedNow") : state.me.full_name + ", " + state.me.nickname;
+  } else if (state.id !== "checking") {
+    const k = { none: ["📱", "setupTitle", "setupBody"], badlink: ["🔗", "badTitle", "badBody"],
+                replaced: ["🔄", "replacedTitle", "replacedBody"], error: ["📶", "idErrTitle", "idErrBody"] }[state.id];
+    $("setupIc").textContent = k[0]; $("setupTitle").textContent = t(k[1]); $("setupBody").textContent = t(k[2]);
+    $("setupRetry").hidden = state.id !== "error"; $("setupRetry").textContent = t("retry");
+  }
+  updateBar();
+}
+$("setupRetry").addEventListener("click", identify);
+
+/* ---------- checklist: a plain list. The button unlocks once the person has scrolled to the end of it ---------- */
+const MIN_READ_MS = 3000;          // and at least 3 seconds after the list first appeared
+let listShownAt = 0, reachedEnd = false, endObs = null;
+function unlockIfRead(){
+  if (state.checked.size === CHECKS.length || !reachedEnd || !listShownAt) return;
+  const wait = MIN_READ_MS - (Date.now() - listShownAt);
+  if (wait > 0) { clearTimeout(unlockIfRead.tm); unlockIfRead.tm = setTimeout(unlockIfRead, wait); return; }
+  CHECKS.forEach(c => state.checked.add(c.id));
+  updateBar();
+}
+function renderChecks(){
+  $("checks").innerHTML = '<ol class="plain">' + CHECKS.map(c => {
+    const where = c.where ? `<span class="where">${c.where.map(w =>
+      `<span><b>${esc(w[lang])}：</b>${esc(lang === "zh" ? w.itemsZh : w.itemsEn)}</span>`).join("")}</span>` : "";
+    return `<li>${esc(c[lang])}${where}</li>`;
+  }).join("") + '</ol>';
+  $("endNote").textContent = t("endAll");
+  if (endObs || !("IntersectionObserver" in window)) { if (!endObs) { reachedEnd = true; } return; }
+  endObs = new IntersectionObserver(es => es.forEach(en => {
+    // must be really on screen: list visible, and above the sign-off bar at the bottom
+    const el = en.target, rc = el.getBoundingClientRect();
+    if (en.isIntersecting && el.offsetParent !== null && rc.height > 0) { reachedEnd = true; unlockIfRead(); }
+  }), { threshold: [0, 1] });
+  endObs.observe($("endNote"));
+}
+function buzz(p){ if (navigator.vibrate) { try { navigator.vibrate(p); } catch(_){} } }
+
+/* ---------- Office Wi-Fi check (decided by the database) ---------- */
 let netPromise;
 function checkNetwork(){
   state.net = { status: "checking" }; renderLoc();
@@ -465,40 +521,29 @@ function renderLoc(){
   const map = { checking: ["checking", t("netChecking")], ok: ["ok", t("netOk")], no: ["bad", t("netNo")], error: ["bad", t("netError")] };
   const [cls, txt] = map[n.status];
   el.className = "loc " + cls;
-  $("locTxt").textContent = txt + (DEBUG && n.ip ? `（IP：${n.ip}）` : "");
+  // when red, always show the network number in small text so staff can screenshot it for the admin
+  const showIp = n.ip && (n.status === "no" || DEBUG);
+  $("locTxt").innerHTML = esc(txt) + (showIp ? `<span class="ipsmall">${esc(t("network"))}: ${esc(n.ip)}</span>` : "");
   $("locRetry").hidden = !(n.status === "no" || n.status === "error");
-  if (typeof updateBar === "function" && $("go").textContent) updateBar();
+  updateBar();
 }
 $("locRetry").addEventListener("click", checkNetwork);
-// check again when the phone comes back online or the page is reopened (e.g. after switching to the office Wi-Fi)
 window.addEventListener("online", checkNetwork);
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && $("done").hidden && !state.sending && state.net.status !== "checking") checkNetwork();
 });
 
-/* ---------- submit ---------- */
+/* ---------- sign off ---------- */
 function updateBar(){
+  if (!$("go")) return;
   const left = CHECKS.length - state.checked.size;
-  // progress: first half fills as checks are ticked, second half when a name is picked on page 2
   $("s1").style.width = (state.checked.size / CHECKS.length * 100) + "%";
-  $("s2").style.width = (state.page === 2 && state.person ? 100 : 0) + "%";
-  if (state.page === 1) {
-    $("go").disabled = left > 0;
-    $("go").textContent = t("next") + " →";
-    $("hint").textContent = left > 0 ? t("hintChecks", { n: left }) : t("hintReady");
-  } else {
-    const net = state.net.status, blocked = net === "no" || net === "error";
-    $("go").disabled = !state.person || state.sending || net !== "ok";
-    $("go").textContent = state.sending ? t("sending") : t("submit");
-    $("hint").textContent = blocked ? t("hintWifi") : net === "checking" ? t("hintChecking") : !state.person ? t("hintName") : t("hintReady");
-  }
+  const net = state.net.status, blocked = net === "no" || net === "error";
+  $("go").disabled = left > 0 || state.sending || net !== "ok" || state.id !== "ok";
+  $("go").textContent = state.sending ? t("sending") : t("submit");
+  $("hint").textContent = blocked ? t("hintWifi") : left > 0 ? t("hintScroll") : net === "checking" ? t("hintChecking") : t("hintReady");
+  if (state.id === "ok" && !blocked && left === 0 && !state.sending) $("go").textContent = t("submitReady");
 }
-function goPage(n){
-  state.page = n;
-  $("page1").hidden = n !== 1; $("page2").hidden = n !== 2;
-  window.scrollTo(0, 0); updateBar();
-}
-$("back").addEventListener("click", () => goPage(1));
 function showToast(msg){
   const el = $("toast"); el.textContent = msg; el.hidden = false;
   clearTimeout(showToast.tm); showToast.tm = setTimeout(() => el.hidden = true, 4000);
@@ -506,35 +551,46 @@ function showToast(msg){
 const hkTime = d => new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Hong_Kong", hour: "2-digit", minute: "2-digit" }).format(d);
 const hkDate = d => new Intl.DateTimeFormat(lang === "zh" ? "zh-HK" : "en-GB", { timeZone: "Asia/Hong_Kong", weekday: "short", day: "numeric", month: "short", year: "numeric" }).format(d);
 
-$("go").addEventListener("click", async () => {
+/* step 1: "I've checked all 6" opens a double-check popup; step 2: "Yes, sign off" saves */
+function openConfirm(){
   if ($("go").disabled) return;
-  if (state.page === 1) { goPage(2); return; }
+  $("cfTitle").textContent = t("cfTitle");
+  $("cfBody").textContent = t("cfBody");
+  $("cfYes").textContent = t("cfYes"); $("cfNo").textContent = t("cfNo");
+  $("confirm").hidden = false;
+}
+function closeConfirm(){ $("confirm").hidden = true; }
+$("go").addEventListener("click", openConfirm);
+$("cfNo").addEventListener("click", closeConfirm);
+$("confirm").addEventListener("click", e => { if (e.target.id === "confirm") closeConfirm(); });
+$("cfYes").addEventListener("click", () => { closeConfirm(); doSignOff(); });
+async function doSignOff(){
+  if ($("go").disabled) return;
   state.sending = true; updateBar();
   if (state.net.status === "checking") await netPromise;
   if (state.net.status !== "ok") { state.sending = false; updateBar(); showToast(t("hintWifi")); return; }
   try {
-    let time = hkTime(new Date());
+    let time = hkTime(new Date()), who = state.me;
     if (LIVE) {
       const j = await rpc("sign_off", {
-        p_full_name: state.person[0], p_nickname: state.person[1],
-        p_checklist: CHECKS.map(c => c.en), p_note: $("note").value.trim() || null,
-        p_lang: lang, p_device: navigator.userAgent.slice(0, 200)
+        p_token: store.get("sl_token"), p_checklist: CHECKS.map(c => c.en),
+        p_note: $("note").value.trim() || null, p_lang: lang, p_device: UA
       });
       if (j && j.time) time = j.time;
+      if (j && j.nickname) who = j;
     }
-    store.set("sl_person", display(state.person));
     const hr = +new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Hong_Kong", hour: "2-digit", hourCycle: "h23" }).format(new Date());
     const slot = hr >= 20 || hr < 5 ? "Late" : hr >= 19 ? "Evening" : "Early";   // before 7pm / 7–8pm / 8pm or later
     $("doneEmo").textContent = slot === "Early" ? "🎉" : "🌙";
     $("doneMsg").textContent = t("msg" + slot);
     const wd = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Hong_Kong", weekday: "short" }).format(new Date());
     const weekend = wd === "Fri" || wd === "Sat";
-    $("doneBye").textContent = t(weekend ? "byeWeekend" : "bye", { nick: state.person[1] });
+    $("doneBye").textContent = t(weekend ? "byeWeekend" : "bye", { nick: who.nickname });
     $("done").classList.toggle("night", slot !== "Early");
     $("sky").innerHTML = slot === "Early" ? "" : Array.from({ length: 18 }, () =>
       `<span class="star" style="left:${Math.random()*100}%;top:${Math.random()*45}%;animation-delay:${(Math.random()*2.4).toFixed(2)}s;font-size:${8 + Math.random()*10}px">✦</span>`).join("");
-    if (navigator.vibrate) { try { navigator.vibrate([30, 60, 30]); } catch(_){} }
-    $("doneWho").textContent = display(state.person);
+    buzz([30, 60, 30]);
+    $("doneWho").textContent = who.full_name + ", " + who.nickname;
     $("doneWhen").textContent = hkDate(new Date()) + " · " + time;
     $("doneLoc").className = "pill ok";
     $("doneLoc").textContent = t("doneNet");
@@ -543,20 +599,19 @@ $("go").addEventListener("click", async () => {
   } catch (e) {
     state.sending = false;
     if (e.code === "NOT_OFFICE_WIFI") { state.net = { status: "no" }; renderLoc(); showToast(t("hintWifi")); }
+    else if (e.code === "NOT_LINKED") { store.del("sl_token"); state.me = null; state.id = "none"; renderId(); showToast(t("setupTitle")); }
     else showToast(t("err"));
     updateBar();
   }
-});
+}
 
 /* ---------- language ---------- */
 function applyLang(){
   document.documentElement.lang = lang === "zh" ? "zh-HK" : "en";
   document.querySelectorAll("[data-t]").forEach(el => el.textContent = t(el.dataset.t));
   document.querySelectorAll("[data-lang]").forEach(b => b.classList.toggle("on", b.dataset.lang === lang));
-  $("q").placeholder = t("search");
   $("note").placeholder = t("notePh");
-  renderChecks(); renderList(); renderLoc(); updateBar();
-  $("recap").textContent = t("recap", { n: CHECKS.length });
+  renderChecks(); renderLoc(); renderId();
 }
 document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => {
   lang = b.dataset.lang; store.set("sl_lang", lang); applyLang();
@@ -564,9 +619,9 @@ document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click"
 
 /* ---------- start ---------- */
 $("demo").hidden = LIVE;
-checkNetwork();
 applyLang();
-if (lastName && people.some(p => display(p) === lastName)) pick(lastName);
+checkNetwork();
+identify();
 </script>
 </body>
 </html>
