@@ -71,7 +71,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .search input:focus{border-color:var(--brand)}
 .search input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
 .search .clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--muted);font-size:20px;line-height:1;padding:6px 10px;cursor:pointer}
-.list{margin-top:8px;max-height:300px;overflow-y:auto;border:1.5px solid var(--line);border-radius:12px;overscroll-behavior:contain}
+.list{margin-top:8px;border:1.5px solid var(--line);border-radius:12px;overflow:hidden}
 .person{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:var(--card);padding:11px 12px;cursor:pointer}
 .person:last-child{border-bottom:0}
 .person:active{background:var(--bg)}
@@ -166,7 +166,7 @@ ol.plain .where b{color:var(--text,#0f172a)}
 .card h2 .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--brand-soft);color:var(--brand);font-size:13px;margin-right:2px}
 .linkbtn{border:0;background:none;color:var(--brand);font-weight:700;text-decoration:underline;cursor:pointer;font-size:14px}
 /* up-and-down scrolling only: no sideways drift, bounce or zoom */
-html,body{max-width:100%;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}
+html,body{max-width:100%;overflow-x:clip;overscroll-behavior-x:none}
 html,body,.modal{touch-action:pan-y}
 [hidden]{display:none!important}
 </style>
@@ -471,7 +471,8 @@ async function rpc(fn, body){
 /* ---------- name picker (names come from the database table "staff") ---------- */
 // demo mode only (no database): a few sample names
 const DEMO_STAFF = [["Chang Wan Yin","Emily"],["Chan Chi Pan","Andy"],["Leung Ho Yu","Toby"],["Cheng Sze Wai","Cynthia"],["Yung Raziya","Cynthia"]];
-const display = p => p[0] + ", " + p[1];
+// shown as "Nickname Surname", e.g. ["Chang Wan Yin","Emily"] -> "Emily Chang"
+const display = p => p[1] + " " + p[0].trim().split(/\s+/)[0];
 const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 let people = [];
 const lastName = store.get("sl_person");
@@ -646,7 +647,7 @@ async function doSignOff(){
       `<span class="star" style="left:${Math.random()*100}%;top:${Math.random()*45}%;animation-delay:${(Math.random()*2.4).toFixed(2)}s;font-size:${8 + Math.random()*10}px">✦</span>`).join("");
     store.set("sl_person", display(state.person));
     buzz([30, 60, 30]);
-    $("doneWho").textContent = who.full_name + ", " + who.nickname;
+    $("doneWho").textContent = display([who.full_name, who.nickname]);
     $("doneWhen").textContent = hkDate(new Date()) + " · " + time;
     $("doneLoc").className = "pill ok";
     $("doneLoc").textContent = t("doneNet");
@@ -675,12 +676,6 @@ document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click"
 
 /* ---------- block pinch / double-tap zoom (iOS ignores the viewport setting) ---------- */
 ["gesturestart", "gesturechange"].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
-let lastTouch = 0;
-document.addEventListener("touchend", e => {
-  const now = Date.now();
-  if (now - lastTouch < 300 && !e.target.closest("input, textarea")) e.preventDefault();
-  lastTouch = now;
-}, { passive: false });
 
 /* ---------- start ---------- */
 $("demo").hidden = LIVE;
