@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Scan & Leave</title>
 <meta name="theme-color" content="#0e7490">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -153,9 +153,21 @@ ol.plain .where b{color:var(--text,#0f172a)}
 .modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
 .modal .sheet{background:var(--card);border-radius:18px;padding:22px 18px 14px;width:100%;max-width:400px;max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.3)}
 .modal h3{margin:0 0 6px;font-size:19px;text-align:center}
+.modal p b{color:var(--ink,#0f172a)}
+#cfYes{background:#c25a52;box-shadow:0 4px 12px rgba(194,90,82,.22)}
 .modal p{margin:0 0 18px;color:var(--muted);text-align:center;font-size:15px}
 .modal ul{margin:0 0 16px;padding-left:20px;font-size:15px;line-height:1.6}
 .modal .cfno{width:100%;margin-top:8px;border:0;background:none;color:var(--muted);font-size:16px;font-weight:600;padding:12px;cursor:pointer}
+.paste{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);text-align:left}
+.paste label{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+.paste input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px}
+.paste button{width:100%;margin-top:8px}
+.pasteErr{color:var(--bad);font-size:14px;margin:6px 0 0}
+.card h2 .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--brand-soft);color:var(--brand);font-size:13px;margin-right:2px}
+.linkbtn{border:0;background:none;color:var(--brand);font-weight:700;text-decoration:underline;cursor:pointer;font-size:14px}
+/* up-and-down scrolling only: no sideways drift, bounce or zoom */
+html,body{max-width:100%;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}
+html,body,.modal{touch-action:pan-y}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -180,16 +192,28 @@ ol.plain .where b{color:var(--text,#0f172a)}
     <button id="locRetry" hidden data-t="retry"></button>
   </div>
 
-  <div class="hello" id="hello" hidden>
-    <span class="av" id="helloAv"></span>
-    <div><b id="helloName"></b><small id="helloSub"></small></div>
-  </div>
+  <section class="card" id="nameCard">
+    <h2><span class="n">1</span><span data-t="nameTitle"></span></h2>
+    <div id="pickerArea">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <button class="clear" id="qClear" type="button" aria-label="Clear" hidden>×</button>
+      </div>
+      <div class="list" id="list"></div>
+    </div>
+    <div class="picked" id="picked" hidden>
+      <span class="av" id="pickedAv"></span>
+      <span class="nm" id="pickedNm"></span>
+      <button id="change" type="button" data-t="change"></button>
+    </div>
+  </section>
 
   <div class="steps"><span><i id="s1"></i></span></div>
 
-  <div id="main" hidden>
+  <div id="main">
     <section class="card">
-      <h2><span data-t="checksTitle"></span><span class="count" id="count"></span></h2>
+      <h2><span class="n">2</span><span data-t="checksTitle"></span><span class="count" id="count"></span></h2>
       <div id="checks"></div>
       <p class="endnote" id="endNote"></p>
     </section>
@@ -207,12 +231,6 @@ ol.plain .where b{color:var(--text,#0f172a)}
     </div>
   </div>
 
-  <section class="card setup" id="setup" hidden>
-    <div class="ic" id="setupIc">📱</div>
-    <h2 id="setupTitle"></h2>
-    <p id="setupBody"></p>
-    <button id="setupRetry" type="button" hidden></button>
-  </section>
 </div>
 
 
@@ -289,14 +307,31 @@ const T = {
     hintScroll: "請先向下閱讀全部項目",
     submitReady: "我已檢查全部 6 項",
     cfTitle: "你真的確認全部都檢查好了嗎？",
-    cfBody: "按「確認」即代表你已親自檢查以上 6 項，並會以你的名字記錄。",
-    cfYes: "確認，簽退離開",
-    cfNo: "未有，返回再檢查",
+    cfBody: "記錄人：",
+    nameTitle: "你的名字",
+    search: "搜尋名字，例如 Emily",
+    noMatch: "找不到這個名字",
+    lastTime: "上次",
+    change: "更改",
+    hintName: "請先選擇你的名字",
+    loadingNames: "正在載入名單…",
+    namesErr: "未能載入名單。",
+    badName: "名單已更新，請重新選擇你的名字",
+    cfYes: "確認",
+    cfNo: "返回",
     network: "網絡",
     setupTitle: "這部手機未設定",
     setupBody: "請打開管理員用 WhatsApp 傳給你的「個人設定連結」一次。之後掃門口 QR，系統就會自動認得你。",
     badTitle: "此設定連結無效",
     badBody: "連結可能已更新。請向管理員索取新的個人連結。",
+    resetTitle: "你的設定連結已更新",
+    resetBody: "管理員已為你換了新的個人連結。請打開新連結一次。",
+    privTitle: "請關閉無痕瀏覽",
+    privBody: "無痕 / 私密瀏覽模式不能記住你的手機。請用一般模式打開。",
+    pasteLbl: "已有個人連結？在 WhatsApp 長按連結 →「拷貝」，再貼在這裡：",
+    pastePh: "貼上個人連結",
+    pasteGo: "連結這部手機",
+    pasteBad: "這不像是個人設定連結，請再複製一次。",
     replacedTitle: "你的連結已在另一部手機使用",
     replacedBody: "如果是你換了手機，請在新手機打開個人連結。如果不是你，請立即通知管理員。",
     idErrTitle: "未能確認這部手機",
@@ -344,14 +379,31 @@ const T = {
     hintScroll: "Please read the whole list first",
     submitReady: "I've checked all 6 items",
     cfTitle: "Are you really confirming everything?",
-    cfBody: "By tapping Yes, you confirm you personally checked all 6 items. This is recorded under your name.",
-    cfYes: "Yes, sign off & leave",
-    cfNo: "Not yet, go back",
+    cfBody: "Recorded as:",
+    nameTitle: "Your name",
+    search: "Search your name, e.g. Emily",
+    noMatch: "No matching name",
+    lastTime: "Last time",
+    change: "Change",
+    hintName: "Choose your name first",
+    loadingNames: "Loading names…",
+    namesErr: "Couldn't load the names.",
+    badName: "The name list has changed. Please choose your name again.",
+    cfYes: "Confirm",
+    cfNo: "Back",
     network: "Network",
     setupTitle: "This phone isn't set up yet",
     setupBody: "Open the personal setup link the admin sent you on WhatsApp, once. After that, scanning the QR at the door will recognise you automatically.",
     badTitle: "This setup link doesn't work",
     badBody: "It may have been replaced. Ask the admin for a new personal link.",
+    resetTitle: "Your setup link was renewed",
+    resetBody: "The admin gave you a new personal link. Please open the new link once.",
+    privTitle: "Please turn off private browsing",
+    privBody: "Private / Incognito mode can't remember your phone. Open this page in a normal tab.",
+    pasteLbl: "Have your personal link? In WhatsApp, press and hold it → Copy, then paste it here:",
+    pastePh: "Paste your personal link",
+    pasteGo: "Link this phone",
+    pasteBad: "That doesn't look like a personal setup link. Please copy it again.",
     replacedTitle: "Your link was used on another phone",
     replacedBody: "If you changed phones, open your personal link on the new one. If it wasn't you, tell the admin straight away.",
     idErrTitle: "Couldn't check this phone",
@@ -398,7 +450,7 @@ const t = (k, vars) => {
   return s;
 };
 
-const state = { checked: new Set(), sending: false, net: { status: "checking" }, me: null, id: "checking", justLinked: false };
+const state = { checked: new Set(), sending: false, net: { status: "checking" }, person: null };
 const DEBUG = /[?&]debug=1/.test(location.search);
 const LIVE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_KEY);
 const UA = navigator.userAgent.slice(0, 200);
@@ -416,59 +468,62 @@ async function rpc(fn, body){
   } finally { clearTimeout(tm); }
 }
 
-/* ---------- who is this phone? (linked once with the personal setup link) ---------- */
-// demo mode: works as "Emily"; add ?demo=unlinked, ?demo=badlink or ?demo=replaced to preview those screens
-const DEMO_ME = { full_name: "Chang Wan Yin", nickname: "Emily" };
-async function identify(){
-  state.id = "checking"; renderId();
-  const join = (location.search.match(/[?&]join=([0-9a-f]+)/i) || [])[1];
-  const demo = (location.search.match(/[?&]demo=(\w+)/) || [])[1];
-  if (join) {
-    try {
-      const j = LIVE ? await rpc("link_device", { p_code: join, p_device: UA }) : { ok: true, token: "demo", ...DEMO_ME };
-      store.set("sl_token", j.token); state.me = j; state.justLinked = true;
-    } catch (e) { state.id = e.code === "BAD_LINK" ? "badlink" : "error"; }
-    try { history.replaceState(null, "", location.pathname); } catch (_) {}   // hide the code from the address bar
-    if (!state.me) { renderId(); return; }
+/* ---------- name picker (names come from the database table "staff") ---------- */
+// demo mode only (no database): a few sample names
+const DEMO_STAFF = [["Chang Wan Yin","Emily"],["Chan Chi Pan","Andy"],["Leung Ho Yu","Toby"],["Cheng Sze Wai","Cynthia"],["Yung Raziya","Cynthia"]];
+const display = p => p[0] + ", " + p[1];
+const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+let people = [];
+const lastName = store.get("sl_person");
+async function loadStaff(){
+  $("list").innerHTML = `<div class="empty">${t("loadingNames")}</div>`;
+  try {
+    const rows = LIVE ? await rpc("list_staff") : DEMO_STAFF.map(p => ({ full_name: p[0], nickname: p[1] }));
+    people = (rows || []).map(x => [x.full_name, x.nickname]).sort((a, b) => display(a).localeCompare(display(b)));
+    renderList();
+    if (!state.person && lastName && people.some(p => display(p) === lastName)) pick(lastName);
+  } catch (e) {
+    $("list").innerHTML = `<div class="empty">${t("namesErr")} <button type="button" class="linkbtn" id="namesRetry">${t("retry")}</button></div>`;
+    $("namesRetry").onclick = loadStaff;
   }
-  if (!state.me) {
-    const tok = store.get("sl_token");
-    try {
-      if (!LIVE) {
-        if (demo === "unlinked") state.id = "none";
-        else if (demo === "badlink") state.id = "badlink";
-        else if (demo === "replaced") state.id = "replaced";
-        else state.me = DEMO_ME;
-      } else if (!tok) state.id = "none";
-      else {
-        const j = await rpc("whoami", { p_token: tok });
-        if (j && j.ok) state.me = j;
-        else { store.del("sl_token"); state.id = j && j.reason === "replaced" ? "replaced" : "none"; }
-      }
-    } catch (e) { state.id = "error"; }
-  }
-  if (state.me) state.id = "ok";
-  renderId();
 }
-function renderId(){
-  const ok = state.id === "ok";
-  $("hello").hidden = !ok; $("main").hidden = !ok; $("bar").hidden = !ok;
-  if (ok && !listShownAt) { listShownAt = Date.now(); unlockIfRead(); }
-  $("setup").hidden = ok || state.id === "checking";
-  if (ok) {
-    $("helloAv").textContent = (state.me.nickname || "?").charAt(0).toUpperCase();
-    $("helloName").textContent = t("hello", { nick: state.me.nickname });
-    $("hello").classList.toggle("new", state.justLinked);
-    $("helloSub").textContent = state.justLinked ? t("linkedNow") : state.me.full_name + ", " + state.me.nickname;
-  } else if (state.id !== "checking") {
-    const k = { none: ["📱", "setupTitle", "setupBody"], badlink: ["🔗", "badTitle", "badBody"],
-                replaced: ["🔄", "replacedTitle", "replacedBody"], error: ["📶", "idErrTitle", "idErrBody"] }[state.id];
-    $("setupIc").textContent = k[0]; $("setupTitle").textContent = t(k[1]); $("setupBody").textContent = t(k[2]);
-    $("setupRetry").hidden = state.id !== "error"; $("setupRetry").textContent = t("retry");
-  }
-  updateBar();
+function highlight(text, q){
+  if (!q) return esc(text);
+  const i = text.toLowerCase().indexOf(q.toLowerCase());
+  if (i < 0) return esc(text);
+  return esc(text.slice(0, i)) + "<mark>" + esc(text.slice(i, i + q.length)) + "</mark>" + esc(text.slice(i + q.length));
 }
-$("setupRetry").addEventListener("click", identify);
+function renderList(){
+  const raw = $("q").value.trim(), q = norm(raw);
+  $("qClear").hidden = !raw;
+  if (!people.length) return;
+  let list = people.filter(p => !q || norm(p[0] + p[1]).includes(q) || norm(p[1]).startsWith(q));
+  if (!q && lastName) { const i = list.findIndex(p => display(p) === lastName); if (i > 0) list.unshift(list.splice(i, 1)[0]); }
+  $("list").innerHTML = list.length ? list.map(p => {
+    const name = display(p);
+    return `<button type="button" class="person" data-name="${esc(name)}">
+      <span class="av">${esc(p[1].charAt(0).toUpperCase())}</span>
+      <span class="nm">${highlight(name, raw)}</span>
+      ${!q && name === lastName ? `<span class="tag">${t("lastTime")}</span>` : ""}
+    </button>`;
+  }).join("") : `<div class="empty">${t("noMatch")}</div>`;
+}
+function pick(name){
+  const p = people.find(x => display(x) === name); if (!p) return;
+  state.person = p;
+  $("pickedAv").textContent = p[1].charAt(0).toUpperCase();
+  $("pickedNm").textContent = name;
+  $("pickerArea").hidden = true; $("picked").hidden = false;
+  $("q").blur(); updateBar();
+}
+$("list").addEventListener("click", e => { const b = e.target.closest(".person"); if (b) pick(b.dataset.name); });
+$("q").addEventListener("input", renderList);
+$("q").addEventListener("keydown", e => { if (e.key === "Enter") { const f = $("list").querySelector(".person"); if (f) pick(f.dataset.name); } });
+$("qClear").addEventListener("click", () => { $("q").value = ""; renderList(); $("q").focus(); });
+$("change").addEventListener("click", () => {
+  state.person = null; $("picked").hidden = true; $("pickerArea").hidden = false;
+  $("q").value = ""; renderList(); updateBar();
+});
 
 /* ---------- checklist: a plain list. The button unlocks once the person has scrolled to the end of it ---------- */
 const MIN_READ_MS = 3000;          // and at least 3 seconds after the list first appeared
@@ -539,10 +594,10 @@ function updateBar(){
   const left = CHECKS.length - state.checked.size;
   $("s1").style.width = (state.checked.size / CHECKS.length * 100) + "%";
   const net = state.net.status, blocked = net === "no" || net === "error";
-  $("go").disabled = left > 0 || state.sending || net !== "ok" || state.id !== "ok";
+  $("go").disabled = left > 0 || state.sending || net !== "ok" || !state.person;
   $("go").textContent = state.sending ? t("sending") : t("submit");
-  $("hint").textContent = blocked ? t("hintWifi") : left > 0 ? t("hintScroll") : net === "checking" ? t("hintChecking") : t("hintReady");
-  if (state.id === "ok" && !blocked && left === 0 && !state.sending) $("go").textContent = t("submitReady");
+  $("hint").textContent = blocked ? t("hintWifi") : !state.person ? t("hintName") : left > 0 ? t("hintScroll") : net === "checking" ? t("hintChecking") : t("hintReady");
+  if (state.person && !blocked && left === 0 && !state.sending) $("go").textContent = t("submitReady");
 }
 function showToast(msg){
   const el = $("toast"); el.textContent = msg; el.hidden = false;
@@ -555,7 +610,7 @@ const hkDate = d => new Intl.DateTimeFormat(lang === "zh" ? "zh-HK" : "en-GB", {
 function openConfirm(){
   if ($("go").disabled) return;
   $("cfTitle").textContent = t("cfTitle");
-  $("cfBody").textContent = t("cfBody");
+  $("cfBody").innerHTML = esc(t("cfBody")) + " <b>" + esc(display(state.person)) + "</b>";
   $("cfYes").textContent = t("cfYes"); $("cfNo").textContent = t("cfNo");
   $("confirm").hidden = false;
 }
@@ -570,14 +625,14 @@ async function doSignOff(){
   if (state.net.status === "checking") await netPromise;
   if (state.net.status !== "ok") { state.sending = false; updateBar(); showToast(t("hintWifi")); return; }
   try {
-    let time = hkTime(new Date()), who = state.me;
+    let time = hkTime(new Date());
+    const who = { full_name: state.person[0], nickname: state.person[1] };
     if (LIVE) {
-      const j = await rpc("sign_off", {
-        p_token: store.get("sl_token"), p_checklist: CHECKS.map(c => c.en),
+      const j = await rpc("sign_off_name", {
+        p_full_name: who.full_name, p_checklist: CHECKS.map(c => c.en),
         p_note: $("note").value.trim() || null, p_lang: lang, p_device: UA
       });
       if (j && j.time) time = j.time;
-      if (j && j.nickname) who = j;
     }
     const hr = +new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Hong_Kong", hour: "2-digit", hourCycle: "h23" }).format(new Date());
     const slot = hr >= 20 || hr < 5 ? "Late" : hr >= 19 ? "Evening" : "Early";   // before 7pm / 7–8pm / 8pm or later
@@ -589,6 +644,7 @@ async function doSignOff(){
     $("done").classList.toggle("night", slot !== "Early");
     $("sky").innerHTML = slot === "Early" ? "" : Array.from({ length: 18 }, () =>
       `<span class="star" style="left:${Math.random()*100}%;top:${Math.random()*45}%;animation-delay:${(Math.random()*2.4).toFixed(2)}s;font-size:${8 + Math.random()*10}px">✦</span>`).join("");
+    store.set("sl_person", display(state.person));
     buzz([30, 60, 30]);
     $("doneWho").textContent = who.full_name + ", " + who.nickname;
     $("doneWhen").textContent = hkDate(new Date()) + " · " + time;
@@ -599,7 +655,7 @@ async function doSignOff(){
   } catch (e) {
     state.sending = false;
     if (e.code === "NOT_OFFICE_WIFI") { state.net = { status: "no" }; renderLoc(); showToast(t("hintWifi")); }
-    else if (e.code === "NOT_LINKED") { store.del("sl_token"); state.me = null; state.id = "none"; renderId(); showToast(t("setupTitle")); }
+    else if (e.code === "BAD_NAME") { state.person = null; $("picked").hidden = true; $("pickerArea").hidden = false; loadStaff(); showToast(t("badName")); }
     else showToast(t("err"));
     updateBar();
   }
@@ -610,18 +666,28 @@ function applyLang(){
   document.documentElement.lang = lang === "zh" ? "zh-HK" : "en";
   document.querySelectorAll("[data-t]").forEach(el => el.textContent = t(el.dataset.t));
   document.querySelectorAll("[data-lang]").forEach(b => b.classList.toggle("on", b.dataset.lang === lang));
-  $("note").placeholder = t("notePh");
-  renderChecks(); renderLoc(); renderId();
+  $("note").placeholder = t("notePh"); $("q").placeholder = t("search");
+  renderChecks(); renderLoc(); renderList(); updateBar();
 }
 document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => {
   lang = b.dataset.lang; store.set("sl_lang", lang); applyLang();
 }));
 
+/* ---------- block pinch / double-tap zoom (iOS ignores the viewport setting) ---------- */
+["gesturestart", "gesturechange"].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
+let lastTouch = 0;
+document.addEventListener("touchend", e => {
+  const now = Date.now();
+  if (now - lastTouch < 300 && !e.target.closest("input, textarea")) e.preventDefault();
+  lastTouch = now;
+}, { passive: false });
+
 /* ---------- start ---------- */
 $("demo").hidden = LIVE;
 applyLang();
 checkNetwork();
-identify();
+loadStaff();
+listShownAt = Date.now(); unlockIfRead();
 </script>
 </body>
 </html>
