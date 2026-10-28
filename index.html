@@ -357,7 +357,6 @@ const T = {
     sending: "儲存中…",
     hintChecks: "請向下捲動，閱讀全部項目（尚餘 {n} 項）",
     hintName: "請選擇你的名字",
-    hintReady: "下一步會再確認一次",
     msgEarly: "收工啦，好嘢！",
     msgEvening: "辛苦晒～ Have a good night",
     msgLate: "咁夜先走?! 快啲返屋企休息，have a goodnight~",
@@ -430,7 +429,6 @@ const T = {
     sending: "Saving…",
     hintChecks: "Scroll down to read every item ({n} left)",
     hintName: "Choose your name",
-    hintReady: "You'll be asked to double-check next",
     msgEarly: "Clocking off on time — nice!",
     msgEvening: "Thanks for your hard work~ Have a good night",
     msgLate: "Leaving this late?! Hurry home and rest — have a goodnight~",
@@ -608,7 +606,7 @@ function updateBar(){
   const net = state.net.status, blocked = net === "no" || net === "error";
   $("go").disabled = left > 0 || state.sending || net !== "ok" || !state.person;
   $("go").textContent = state.sending ? t("sending") : t("submit");
-  $("hint").textContent = blocked ? t("hintWifi") : !state.person ? t("hintName") : left > 0 ? t("hintScroll") : net === "checking" ? t("hintChecking") : t("hintReady");
+  $("hint").textContent = blocked ? t("hintWifi") : !state.person ? t("hintName") : left > 0 ? t("hintScroll") : net === "checking" ? t("hintChecking") : "";
   if (state.person && !blocked && left === 0 && !state.sending) $("go").textContent = t("submitReady");
 }
 function showToast(msg){
