@@ -71,7 +71,13 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .search input:focus{border-color:var(--brand)}
 .search input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
 .search .clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--muted);font-size:20px;line-height:1;padding:6px 10px;cursor:pointer}
-.list{margin-top:8px;border:1.5px solid var(--line);border-radius:12px;overflow:hidden}
+.listwrap{position:relative;margin-top:8px}
+.list{height:286px;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;border:1.5px solid var(--line);border-radius:12px;scrollbar-width:thin;scrollbar-color:#94a3b8 transparent}
+.list::-webkit-scrollbar{width:6px}
+.list::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}
+.listwrap .fade{position:absolute;left:2px;right:10px;bottom:2px;height:34px;border-radius:0 0 12px 12px;pointer-events:none;background:linear-gradient(rgba(255,255,255,0),#fff)}
+.listwrap .more{position:absolute;right:16px;bottom:6px;font-size:12px;font-weight:600;color:var(--muted);pointer-events:none}
+.listwrap.end .fade,.listwrap.end .more{display:none}
 .person{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:var(--card);padding:11px 12px;cursor:pointer}
 .person:last-child{border-bottom:0}
 .person:active{background:var(--bg)}
@@ -200,7 +206,7 @@ html,body,.modal{touch-action:pan-y}
         <input id="q" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
         <button class="clear" id="qClear" type="button" aria-label="Clear" hidden>×</button>
       </div>
-      <div class="list" id="list"></div>
+      <div class="listwrap" id="listWrap"><div class="list" id="list"></div><div class="fade"></div><div class="more" id="listMore"></div></div>
     </div>
     <div class="picked" id="picked" hidden>
       <span class="av" id="pickedAv"></span>
@@ -307,6 +313,7 @@ const T = {
     hintScroll: "請先向下閱讀全部項目",
     submitReady: "我已檢查全部 6 項",
     cfTitle: "你真的確認全部都檢查好了嗎？",
+    moreNames: "↓ 向下捲動看更多",
     cfBody: "記錄人：",
     nameTitle: "你的名字",
     search: "搜尋名字，例如 Emily",
@@ -379,6 +386,7 @@ const T = {
     hintScroll: "Please read the whole list first",
     submitReady: "I've checked all 6 items",
     cfTitle: "Are you really confirming everything?",
+    moreNames: "↓ scroll for more",
     cfBody: "Recorded as:",
     nameTitle: "Your name",
     search: "Search your name, e.g. Emily",
@@ -508,6 +516,7 @@ function renderList(){
       ${!q && name === lastName ? `<span class="tag">${t("lastTime")}</span>` : ""}
     </button>`;
   }).join("") : `<div class="empty">${t("noMatch")}</div>`;
+  $("list").scrollTop = 0; listEnd();
 }
 function pick(name){
   const p = people.find(x => display(x) === name); if (!p) return;
@@ -517,6 +526,8 @@ function pick(name){
   $("pickerArea").hidden = true; $("picked").hidden = false;
   $("q").blur(); updateBar();
 }
+function listEnd(){ const l = $("list"); $("listWrap").classList.toggle("end", l.scrollTop + l.clientHeight >= l.scrollHeight - 4); $("listMore").textContent = t("moreNames"); }
+$("list").addEventListener("scroll", listEnd, { passive: true });
 $("list").addEventListener("click", e => { const b = e.target.closest(".person"); if (b) pick(b.dataset.name); });
 $("q").addEventListener("input", renderList);
 $("q").addEventListener("keydown", e => { if (e.key === "Enter") { const f = $("list").querySelector(".person"); if (f) pick(f.dataset.name); } });
